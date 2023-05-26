@@ -54,7 +54,7 @@ An HTMLElement representing the created shape.
 #### `terminate()`
 This method terminates the `UniversalBoardDrawer` instance by removing all elements and cleaning up resources.
 
-## Example Usage
+## Example Usage (lichess.org)
 
 ```javascript
 function load(boardElem) {
