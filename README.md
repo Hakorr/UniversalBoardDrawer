@@ -57,6 +57,9 @@ This method terminates the `UniversalBoardDrawer` instance by removing all eleme
 ## Example Usage (lichess.org)
 
 ```javascript
+// @run-at      document-end
+// ==/UserScript==
+
 function load(boardElem) {
     const BoardDrawer = new UniversalBoardDrawer(boardElem, [8, 8], 'w', false);
 
