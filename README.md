@@ -6,7 +6,7 @@ A userscript library for seamlessly adding chess move arrows to game boards on p
 To use UniversalBoardDrawer in your userscript, you need to add the following line to the userscript header
 
 ```js
-// @require     https://raw.githubusercontent.com/Hakorr/UniversalBoardDrawer/main/UniversalBoardDrawer.js
+// @require     https://raw.githubusercontent.com/Hakorr/CommLink/main/CommLink.js
 ```
 
 ## Usage
