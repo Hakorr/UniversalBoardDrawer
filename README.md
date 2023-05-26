@@ -9,7 +9,7 @@ To use UniversalBoardDrawer in your userscript, you need to add the following li
 // @require     https://raw.githubusercontent.com/Hakorr/UniversalBoardDrawer/main/UniversalBoardDrawer.js
 ```
 
-## Class Usage
+## Usage
 
 ### Constructor
 ```javascript
