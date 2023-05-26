@@ -57,9 +57,6 @@ This method terminates the `UniversalBoardDrawer` instance by removing all eleme
 ## Example Usage (lichess.org)
 
 ```javascript
-// @run-at      document-end
-// ==/UserScript==
-
 function load(boardElem) {
     const BoardDrawer = new UniversalBoardDrawer(boardElem, [8, 8], 'w', false);
 
@@ -81,11 +78,12 @@ function load(boardElem) {
 }
 
 const observer = new MutationObserver((mutationsList, observer) => {
-    const boardElem = document.querySelector('cg-board');
+    const boardElem = document.querySelector('cg-container');
 
-    if (boardElem) {
+    if(boardElem?.querySelector('coords')) {
         observer.disconnect();
-        load(boardElem); // ran once the board element exists and is ready
+
+        load(boardElem);
     }
 });
 
