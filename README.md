@@ -1,6 +1,17 @@
 # UniversalBoardDrawer
 A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org. Enhance your chess-playing experience by easily customizing and displaying move arrows, improving gameplay clarity and strategic analysis.
 
+<table>
+  <tr>
+    <td>
+      <img src="assets/example2.png" alt="Example 2" style="max-width: 100%; height: auto;">
+    </td>
+    <td>
+      <img src="assets/example3.png" alt="Example 3" style="width: 500px; height: auto;">
+    </td>
+  </tr>
+</table>
+
 ## Installation
 
 To use UniversalBoardDrawer in your userscript, you need to add the following line to the userscript header
