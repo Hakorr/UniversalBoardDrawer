@@ -39,7 +39,7 @@ This method creates a shape on the board with the specified configuration.
 
 - `shapeType` (String): The type of shape to create. Currently, only `'arrow'` is supported.
 - `coordinates` (Array): An array with two fen position strings representing the start and end positions.
-- `coordinates` (Object, optional): An object containing additional configuration options for the shape.
+- `config` (Object, optional): An object containing additional configuration options for the shape.
 
 ##### Arrow Configuration Options
 - `lineWidth` (Number): The width of the arrow line.
