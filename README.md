@@ -80,7 +80,7 @@ function load(boardElem) {
         'window': window,
         'boardElem': boardElem,
         'boardDimensions': [8, 8],
-        'playerColor': 'w',
+        'playerColor': 'w', // assuming the you're playing as white
         'zIndex': 99999,
         'debugMode': true
     });
