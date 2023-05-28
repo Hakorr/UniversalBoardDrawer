@@ -1,16 +1,26 @@
 /* UniversalBoardDrawer.js
- - Version: 1.0.0
+ - Version: 1.1.0
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
- */
+*/
 
 class UniversalBoardDrawer {
-    constructor(boardElem, boardDimensions, playerColor, debugMode) {
-        this.boardElem = boardElem;
+    constructor(config) {
+        this.window = config?.window;
+        this.document = this.window?.document;
+        this.parentElem = config?.parentElem || this.document.body;
 
-        this.boardDimensions = { 'width': boardDimensions?.[0] || 8, 'height': boardDimensions?.[1] || 8 };
-        this.playerColor = playerColor || 'w';
+        this.boardElem = config?.boardElem;
+        this.boardDimensions = { 
+            'width': config?.boardDimensions?.[0] || 8,
+            'height': config?.boardDimensions?.[1] || 8
+        };
+
+        this.playerColor = config?.playerColor || 'w';
+        this.zIndex = config?.zIndex || 1000; // container z-index
+        this.terminateAfterDisappear = config?.terminateAfterDisappear || true;
+        this.debugMode = config?.debugMode || false;
 
         this.boardSvg = null;
         this.singleSquareSize = null;
@@ -21,18 +31,23 @@ class UniversalBoardDrawer {
 
         this.defaultFillColor = 'mediumseagreen';
         this.defaultOpacity = 0.8;
-
-        this.debugMode = debugMode || false;
+        
         this.terminated = false;
 
+        if(!this.document) {
+            if(this.debugMode) console.error(`Inputted document element doesn't exist!`);
+
+            return;
+        }
+
         if(!this.boardElem) {
-            if(this.debugMode) console.error(`Board element doesn't exist!`);
+            if(this.debugMode) console.error(`Inputted board element doesn't exist!`);
 
             return;
         }
 
         if(typeof this.boardDimensions != 'object') {
-            if(this.debugMode) console.error(`Invalid board dimensions value, please use array!`);
+            if(this.debugMode) console.error(`Invalid board dimensions value, please use array! (e.g. [8, 8])`);
 
             return;
         }
@@ -63,9 +78,7 @@ class UniversalBoardDrawer {
         const arrowheadHeight = (config?.arrowheadHeight || 45) * scale;
         const startOffset = (config?.startOffset || 20) * scale;
 
-        const style = config?.style || `fill: ${this.defaultFillColor}; opacity: ${this.defaultOpacity}`;
-
-        const arrowElem = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        const arrowElem = this.document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             arrowElem.setAttribute('transform', `rotate(${angle * (180 / Math.PI) - 90} ${fromX} ${fromY})`);
 
         const arrowPoints = [
@@ -80,13 +93,18 @@ class UniversalBoardDrawer {
 
         const pointsString = arrowPoints.map(point => `${point.x},${point.y}`).join(' ');
             arrowElem.setAttribute('points', pointsString);
-            arrowElem.setAttribute('style', style);
+            arrowElem.style.fill = this.defaultFillColor;
+            arrowElem.style.opacity = this.defaultOpacity;
+            
+        const style = config?.style;
+
+        if(style) arrowElem.setAttribute('style', style);
 
         return arrowElem;
     }
 
     createDotOnSVG(x, y) {
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        const dot = this.document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             dot.setAttribute('cx', x);
             dot.setAttribute('cy', y);
             dot.setAttribute('r', '1');
@@ -162,23 +180,6 @@ class UniversalBoardDrawer {
             toElem.setAttribute(attr.name, attr.value));
     }
 
-    updateSVGDimensions() {
-        const boardRect = this.boardElem.getBoundingClientRect();
-
-        this.boardSvg.style.width = boardRect.width + 'px';
-        this.boardSvg.style.height = boardRect.height + 'px';
-        this.boardSvg.style.left = boardRect.left + 'px';
-        this.boardSvg.style.top = boardRect.top + 'px';
-
-        const squareWidth = boardRect.width / this.boardDimensions.width;
-        const squareHeight = boardRect.height / this.boardDimensions.height;
-
-        this.singleSquareSize = squareWidth;
-
-        this.updateCoords(squareWidth, squareHeight);
-        this.updateShapes();
-    }
-
     createShape(type, coordinates, config) {
         if(this.terminated) {
             if(this.debugMode) console.warn('Failed to create shape! Tried to create shape after termination!');
@@ -210,21 +211,51 @@ class UniversalBoardDrawer {
         return null;
     }
 
+    updateSVGDimensions() {
+        const boardRect = this.boardElem.getBoundingClientRect();
+        const isEmpty = Object.values(JSON.parse(JSON.stringify(boardRect))).every(val => val == 0);
+
+        if(isEmpty && this.terminateAfterDisappear) {
+            if(this.debugMode) {
+                console.warn('Terminating board drawer as the board element has disappeared!\n\n'
+                + 'Unexpected? Did you make sure the board was loaded before initializing board drawer?\n\n'
+                + 'Boards which are still loading can completely re-append their elements, causing loss of the element variable.');
+            }
+
+            this.terminate();
+
+            return;
+        }
+
+        this.boardSvg.style.width = boardRect.width + 'px';
+        this.boardSvg.style.height = boardRect.height + 'px';
+        this.boardSvg.style.left = boardRect.left + 'px';
+        this.boardSvg.style.top = boardRect.top + 'px';
+
+        const squareWidth = boardRect.width / this.boardDimensions.width;
+        const squareHeight = boardRect.height / this.boardDimensions.height;
+
+        this.singleSquareSize = squareWidth;
+
+        this.updateCoords(squareWidth, squareHeight);
+        this.updateShapes();
+    }
+
     createOverlaySVG() {
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.style.position = 'sticky';
+        const svg = this.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.style.position = 'absolute';
             svg.style.pointerEvents = 'none';
-            svg.style['z-index'] = 5;
+            svg.style['z-index'] = this.zIndex;
 
         this.boardSvg = svg;
 
         this.updateSVGDimensions();
 
-        this.boardElem.appendChild(this.boardSvg);
+        this.parentElem.appendChild(this.boardSvg);
 
         const rObs = new ResizeObserver(this.updateSVGDimensions.bind(this));
-
         rObs.observe(this.boardElem);
+        rObs.observe(this.document.body);
 
         this.observers.push(rObs);
     }
