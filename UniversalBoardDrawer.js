@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.1.0
+ - Version: 1.1.5
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -19,10 +19,9 @@ class UniversalBoardDrawer {
 
         this.playerColor = config?.playerColor || 'w';
         this.zIndex = config?.zIndex || 1000; // container z-index
-        this.terminateAfterDisappear = config?.terminateAfterDisappear || true;
         this.debugMode = config?.debugMode || false;
 
-        this.boardSvg = null;
+        this.boardContainerElem = null;
         this.singleSquareSize = null;
 
         this.addedShapes = [];
@@ -112,7 +111,7 @@ class UniversalBoardDrawer {
 
         this.addedShapes.push({ type: 'debugDot', 'element': dot });
 
-        this.boardSvg.appendChild(dot);
+        this.boardContainerElem.appendChild(dot);
     }
 
     removeAllExistingShapes() {
@@ -187,7 +186,7 @@ class UniversalBoardDrawer {
             return false;
         }
 
-        if(!this.boardSvg) {
+        if(!this.boardContainerElem) {
             if(this.debugMode) console.warn(`Failed to create shape! Board SVG doesn't exist yet! (createOverlaySVG() failed?)`);
 
             return false;
@@ -200,7 +199,7 @@ class UniversalBoardDrawer {
                 if(element) {
                     this.addedShapes.push({ type, coordinates, config, element });
 
-                    this.boardSvg.appendChild(element);
+                    this.boardContainerElem.appendChild(element);
 
                     return element;
                 }
@@ -213,24 +212,12 @@ class UniversalBoardDrawer {
 
     updateSVGDimensions() {
         const boardRect = this.boardElem.getBoundingClientRect();
-        const isEmpty = Object.values(JSON.parse(JSON.stringify(boardRect))).every(val => val == 0);
+        const bodyRect = this.document.body.getBoundingClientRect(); // https://stackoverflow.com/a/62106310
 
-        if(isEmpty && this.terminateAfterDisappear) {
-            if(this.debugMode) {
-                console.warn('Terminating board drawer as the board element has disappeared!\n\n'
-                + 'Unexpected? Did you make sure the board was loaded before initializing board drawer?\n\n'
-                + 'Boards which are still loading can completely re-append their elements, causing loss of the element variable.');
-            }
-
-            this.terminate();
-
-            return;
-        }
-
-        this.boardSvg.style.width = boardRect.width + 'px';
-        this.boardSvg.style.height = boardRect.height + 'px';
-        this.boardSvg.style.left = boardRect.left + 'px';
-        this.boardSvg.style.top = boardRect.top + 'px';
+        this.boardContainerElem.style.width = boardRect.width + 'px';
+        this.boardContainerElem.style.height = boardRect.height + 'px';
+        this.boardContainerElem.style.left = boardRect.left - bodyRect.left + 'px';
+        this.boardContainerElem.style.top = boardRect.top - bodyRect.top + 'px';
 
         const squareWidth = boardRect.width / this.boardDimensions.width;
         const squareHeight = boardRect.height / this.boardDimensions.height;
@@ -247,22 +234,42 @@ class UniversalBoardDrawer {
             svg.style.pointerEvents = 'none';
             svg.style['z-index'] = this.zIndex;
 
-        this.boardSvg = svg;
+        this.boardContainerElem = svg;
 
         this.updateSVGDimensions();
 
-        this.parentElem.appendChild(this.boardSvg);
+        this.parentElem.appendChild(this.boardContainerElem);
 
         const rObs = new ResizeObserver(this.updateSVGDimensions.bind(this));
-        rObs.observe(this.boardElem);
-        rObs.observe(this.document.body);
+            rObs.observe(this.boardElem);
+            rObs.observe(this.document.body);
 
         this.observers.push(rObs);
+
+        let oldBoardRect = JSON.stringify(this.boardElem.getBoundingClientRect());
+
+        const additionalCheckLoop = setInterval(() => {
+            if(this.terminated) {
+                clearInterval(additionalCheckLoop);
+
+                return;
+            }
+
+            const boardRect = JSON.stringify(this.boardElem.getBoundingClientRect());
+
+            if(boardRect !== oldBoardRect) {
+                oldBoardRect = boardRect;
+
+                this.updateSVGDimensions();
+            }
+        }, 200);
     }
 
     terminate() {
+        this.terminated = true;
+
         this.observers.forEach(observer => observer.disconnect());
 
-        this.boardSvg?.remove();
+        this.boardContainerElem.remove();
     }
 }
