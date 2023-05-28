@@ -60,7 +60,7 @@ An HTMLElement representing the created shape.
 #### `terminate()`
 This method terminates the `UniversalBoardDrawer` instance by removing all elements and cleaning up resources.
 
-## Example Usage (chess.com)
+## Example Usage ([chess.com](https://www.chess.com/play/computer))
 
 ```javascript
 // ==UserScript==
