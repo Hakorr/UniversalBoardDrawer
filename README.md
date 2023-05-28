@@ -54,15 +54,35 @@ An HTMLElement representing the created shape.
 #### `terminate()`
 This method terminates the `UniversalBoardDrawer` instance by removing all elements and cleaning up resources.
 
-## Example Usage (lichess.org)
+## Example Usage (chess.com)
 
 ```javascript
+// ==UserScript==
+// @name        Example userscript
+// @namespace   HKR
+// @match       https://www.chess.com/play/computer
+// @grant       none
+// @version     1.0
+// @author      HKR
+// @description Example userscript
+// @require     https://raw.githubusercontent.com/Hakorr/UniversalBoardDrawer/main/UniversalBoardDrawer.js
+// @run-at      document-start
+// ==/UserScript==
+
 function load(boardElem) {
-    const BoardDrawer = new UniversalBoardDrawer(boardElem, [8, 8], 'w', false);
+    const BoardDrawer = new UniversalBoardDrawer({
+        'window': window,
+        'boardElem': boardElem,
+        'boardDimensions': [8, 8],
+        'playerColor': 'w',
+        'zIndex': 99999,
+        'debugMode': true
+    });
 
-    const defaultArrowElem = BoardDrawer.createShape('arrow', ['h1', 'h6']);
+    const defaultArrowElem = BoardDrawer.createShape('arrow', ['f6', 'g7']); // create arrow from h1 to h6, with default config
 
-    const bigArrowElem = BoardDrawer.createShape('arrow', ['d2', 'f6'], {
+    // create arrow from d2 to f6 with custom config
+    const bigArrowElem = BoardDrawer.createShape('arrow', ['g5', 'e4'], {
         lineWidth: 25,
         arrowheadWidth: 75,
         arrowheadHeight: 55,
@@ -70,17 +90,19 @@ function load(boardElem) {
         style: `fill: crimson; opacity: 1;`
     });
 
-    const blueArrow = BoardDrawer.createShape('arrow', ['a1', 'a3'], { style: `fill: dodgerblue; opacity: 0.5;` });
+    BoardDrawer.createShape('arrow', ['e7', 'b4'], {
+        style: `fill: limegreen;`
+    });
 
-    setTimeout(() => blueArrow.remove(), 5000);
+    setTimeout(() => bigArrowElem.remove(), 5000);
 
     setTimeout(() => BoardDrawer.terminate(), 10000);
 }
 
 const observer = new MutationObserver((mutationsList, observer) => {
-    const boardElem = document.querySelector('cg-container');
+    const boardElem = document.querySelector('#board-vs-personalities');
 
-    if(boardElem?.querySelector('coords')) {
+    if(boardElem) {
         observer.disconnect();
 
         load(boardElem);
