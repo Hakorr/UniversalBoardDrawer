@@ -31,11 +31,10 @@ The config object can consists of the following properties:
 
 - `window` (Object): A variable representing the window object.
 - `boardElem` (HTMLElement): The board element. Needs to be completely initialized and ready, otherwise UniversalBoardDrawer's container might disappear. For accurate results, ensure that the size and position of this element is as close to the visible board as possible.
-- `parentElem` (HTMLElement, optional): The element where UniversalBoardDrawer's container will be appended. Defaults to `document.body`.
+- `playerColor` (String): The board orientation, either `'w'` or `'b'`.
+- `parentElem` (HTMLElement, optional): The element where UniversalBoardDrawer's container will be appended. Make sure the element doesn't have `position: relative;` CSS styling. Defaults to `document.body`.
 - `boardDimensions` (Array, optional): The dimensions of the board. Defaults to `[8, 8]`.
-- `playerColor` (String, optional): The board orientation, either `'w'` or `'b'`. Defaults to `'w'`.
 - `zIndex` (Number, optional): The z-index of the UniversalBoardDrawer container. If you don't see UniversalBoardDrawer, try raising this number. Defaults to `1000`.
-- `terminateAfterDisappear` (Boolean, optional): Specifies whether UniversalBoardDrawer should terminate itself after the board element disappears (usually when the element is removed). Defaults to `true`.
 - `debugMode` (Boolean, optional): Specifies whether the debug mode is enabled. Enable this to see console logs from UniversalBoardDrawer. Defaults to `false`.
 
 ### Methods
