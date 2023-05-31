@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.1.5
+ - Version: 1.2.0
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -30,6 +30,8 @@ class UniversalBoardDrawer {
 
         this.defaultFillColor = 'mediumseagreen';
         this.defaultOpacity = 0.8;
+
+        this.updateInterval = 100;
         
         this.terminated = false;
 
@@ -54,9 +56,23 @@ class UniversalBoardDrawer {
         this.createOverlaySVG();
     }
 
+    setPlayerColor(playerColor) {
+        this.playerColor = playerColor;
+
+        this.updateSVGDimensions();
+    }
+
+    setBoardDimensions(dimensionArr) {
+        const [width, height] = dimensionArr || [8, 8];
+
+        this.boardDimensions = { width, height };
+
+        this.updateSVGDimensions();
+    }
+
     createArrowBetweenPositions(from, to, config) {
-        const fromCoordinateObj = this.squareSvgCoordinates.find(x => x.fenSquare == from);
-        const toCoordinateObj = this.squareSvgCoordinates.find(x => x.fenSquare == to);
+        const fromCoordinateObj = this.squareSvgCoordinates.find(x => this.coordinateToFen(x.coordinates) == from);
+        const toCoordinateObj = this.squareSvgCoordinates.find(x => this.coordinateToFen(x.coordinates) == to);
 
         if(!fromCoordinateObj || !toCoordinateObj) {
             if(this.debugMode) console.error('Coordinates', from, to, 'do not exist. Possibly out of bounds?');
@@ -64,8 +80,8 @@ class UniversalBoardDrawer {
             return;
         }
 
-        const [fromX, fromY] = fromCoordinateObj?.coordinates;
-        const [toX, toY] = toCoordinateObj?.coordinates;
+        const [fromX, fromY] = fromCoordinateObj?.positions;
+        const [toX, toY] = toCoordinateObj?.positions;
 
         const distance = Math.sqrt(Math.pow(fromX - toX, 2) + Math.pow(fromY - toY, 2));
         const angle = Math.atan2(fromY - toY, fromX - toX);
@@ -133,13 +149,13 @@ class UniversalBoardDrawer {
         if(this.debugMode) {
             this.removeAllDebugDots();
 
-            this.squareSvgCoordinates.forEach(x => this.createDotOnSVG(...x.coordinates));
+            this.squareSvgCoordinates.forEach(x => this.createDotOnSVG(...x.positions));
         }
 
         this.addedShapes
             .filter(shapeObj => shapeObj.type != 'debugDot')
             .forEach(shapeObj => {
-                const newShapeElem = this.createArrowBetweenPositions(...shapeObj.coordinates, shapeObj.config);
+                const newShapeElem = this.createArrowBetweenPositions(...shapeObj.positions, shapeObj.config);
 
                 this.transferAttributes(newShapeElem, shapeObj.element);
             });
@@ -166,8 +182,8 @@ class UniversalBoardDrawer {
         for(let y = 0; this.boardDimensions.height > y; y++) {
             for(let x = 0; this.boardDimensions.width > x; x++) {
                 this.squareSvgCoordinates.push({
-                    fenSquare: this.coordinateToFen([x + 1, y + 1]),
-                    coordinates: [squareWidth / 2 + (squareWidth * x),
+                    coordinates: [x + 1, y + 1],
+                    positions: [squareWidth / 2 + (squareWidth * x),
                                   squareHeight / 2 + (squareHeight * y)]
                 });
             }
@@ -179,7 +195,7 @@ class UniversalBoardDrawer {
             toElem.setAttribute(attr.name, attr.value));
     }
 
-    createShape(type, coordinates, config) {
+    createShape(type, positions, config) {
         if(this.terminated) {
             if(this.debugMode) console.warn('Failed to create shape! Tried to create shape after termination!');
 
@@ -194,10 +210,10 @@ class UniversalBoardDrawer {
 
         switch(type) {
             case 'arrow':
-                const element = this.createArrowBetweenPositions(...coordinates, config);
+                const element = this.createArrowBetweenPositions(...positions, config);
 
                 if(element) {
-                    this.addedShapes.push({ type, coordinates, config, element });
+                    this.addedShapes.push({ type, positions, config, element });
 
                     this.boardContainerElem.appendChild(element);
 
@@ -262,7 +278,7 @@ class UniversalBoardDrawer {
 
                 this.updateSVGDimensions();
             }
-        }, 200);
+        }, this.updateInterval);
     }
 
     terminate() {
