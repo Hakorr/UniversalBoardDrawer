@@ -1,5 +1,5 @@
 # UniversalBoardDrawer
-A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org.
+A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com, Lichess.org, and almost anywhere else.
 
 <table>
   <tr>
@@ -7,7 +7,10 @@ A userscript library for seamlessly adding chess move arrows to game boards on p
       <img src="assets/example2.png" alt="Example 2" style="max-width: 100%; height: auto;">
     </td>
     <td>
-      <img src="assets/example3.png" alt="Example 3" style="width: 500px; height: auto;">
+      <img src="assets/example3.png" alt="Example 3" style="max-width: 100%; height: auto;">
+    </td>
+      <td>
+      <img src="assets/example4.png" alt="Example 4" style="max-width: 100%; height: auto;">
     </td>
   </tr>
 </table>
