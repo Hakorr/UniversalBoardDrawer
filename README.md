@@ -4,13 +4,13 @@ A userscript library for seamlessly adding chess move arrows to game boards on p
 <table>
   <tr>
     <td>
-      <img src="assets/example2.png" alt="Example 2" style="max-width: 100%; height: auto;">
+      <img src="assets/example2.png" alt="Lichess.org example" style="max-width: 100%; height: auto;">
     </td>
     <td>
-      <img src="assets/example3.png" alt="Example 3" style="max-width: 100%; height: auto;">
+      <img src="assets/example3.png" alt="Chess.com example" style="max-width: 100%; height: auto;">
     </td>
       <td>
-      <img src="assets/example4.png" alt="Example 4" style="max-width: 100%; height: auto;">
+      <img src="assets/example4.png" alt="A.C.A.S example" style="max-width: 100%; height: auto;">
     </td>
   </tr>
 </table>
