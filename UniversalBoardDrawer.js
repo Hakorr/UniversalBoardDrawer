@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.2.0
+ - Version: 1.2.1
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -19,6 +19,7 @@ class UniversalBoardDrawer {
 
         this.playerColor = config?.playerColor || 'w';
         this.zIndex = config?.zIndex || 1000; // container z-index
+        this.usePrepend = config?.prepend || false;
         this.debugMode = config?.debugMode || false;
 
         this.boardContainerElem = null;
@@ -215,7 +216,11 @@ class UniversalBoardDrawer {
                 if(element) {
                     this.addedShapes.push({ type, positions, config, element });
 
-                    this.boardContainerElem.appendChild(element);
+                    if(this.usePrepend) {
+                        this.boardContainerElem.prepend(element);
+                    } else {
+                        this.boardContainerElem.appendChild(element);
+                    }
 
                     return element;
                 }
