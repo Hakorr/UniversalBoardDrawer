@@ -27,17 +27,18 @@ To use UniversalBoardDrawer in your userscript, you need to add the following li
 
 ### Constructor
 ```javascript
-const BoardDrawer = new UniversalBoardDrawer(config);
+const BoardDrawer = new UniversalBoardDrawer(boardElem, config);
 ```
+The board element (HTMLElement) needs to be completely initialized and ready, otherwise UniversalBoardDrawer's container might disappear. For accurate results, ensure that the size and position of this element is as close to the visible portion of the board as possible.
 
-The config object can consists of the following properties:
+The config (Object) can consists of the following properties:
 
 - `window` (Object): A variable representing the window object.
-- `boardElem` (HTMLElement): The board element. Needs to be completely initialized and ready, otherwise UniversalBoardDrawer's container might disappear. For accurate results, ensure that the size and position of this element is as close to the visible board as possible.
 - `playerColor` (String): The board orientation, either `'w'` or `'b'`.
 - `parentElem` (HTMLElement, optional): The element where UniversalBoardDrawer's container will be appended. Make sure the element doesn't have `position: relative;` CSS styling. Defaults to `document.body`.
 - `boardDimensions` (Array, optional): The dimensions of the board. Defaults to `[8, 8]`.
 - `zIndex` (Number, optional): The z-index of the UniversalBoardDrawer container. If you don't see UniversalBoardDrawer, try raising this number. Defaults to `1000`.
+- `usePrepend` (Boolean, optional): Specifies whether to prepend the arrows and such to the UniversalBoardDrawer's container. Defaults to `false`.
 - `debugMode` (Boolean, optional): Specifies whether the debug mode is enabled. Enable this to see console logs from UniversalBoardDrawer. Defaults to `false`.
 
 ### Methods
@@ -59,6 +60,16 @@ This method creates a shape on the board with the specified configuration.
 ##### Returns:
 An HTMLElement representing the created shape.
 
+#### `setOrientation(orientation)`
+This method changes the board orientation.
+
+- `orientation` (String): The orientation to set. Either `w` (white) or `b` (black).
+
+#### `setBoardDimensions(dimensionArr)`
+This method changes the board dimensions.
+
+- `dimensionArr` (Array): The dimensions to set. The first index is for "file" (width) and the second for "rank" (height), e.g. `[8, 8]`.
+
 #### `terminate()`
 This method terminates the `UniversalBoardDrawer` instance by removing all elements and cleaning up resources.
 
@@ -78,9 +89,8 @@ This method terminates the `UniversalBoardDrawer` instance by removing all eleme
 // ==/UserScript==
 
 function load(boardElem) {
-    const BoardDrawer = new UniversalBoardDrawer({
+    const BoardDrawer = new UniversalBoardDrawer(boardElem, {
         'window': window,
-        'boardElem': boardElem,
         'boardDimensions': [8, 8],
         'playerColor': 'w', // assuming you're playing as white
         'zIndex': 99999,
