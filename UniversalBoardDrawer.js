@@ -1,23 +1,24 @@
 /* UniversalBoardDrawer.js
- - Version: 1.2.1
+ - Version: 1.2.2
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
 */
 
 class UniversalBoardDrawer {
-    constructor(config) {
-        this.window = config?.window;
+    constructor(boardElem, config) {
+        this.boardElem = boardElem;
+
+        this.window = config?.window || window;
         this.document = this.window?.document;
         this.parentElem = config?.parentElem || this.document.body;
 
-        this.boardElem = config?.boardElem;
         this.boardDimensions = { 
             'width': config?.boardDimensions?.[0] || 8,
             'height': config?.boardDimensions?.[1] || 8
         };
 
-        this.playerColor = config?.playerColor || 'w';
+        this.orientation = config?.orientation || 'w';
         this.zIndex = config?.zIndex || 1000; // container z-index
         this.usePrepend = config?.prepend || false;
         this.debugMode = config?.debugMode || false;
@@ -57,8 +58,8 @@ class UniversalBoardDrawer {
         this.createOverlaySVG();
     }
 
-    setPlayerColor(playerColor) {
-        this.playerColor = playerColor;
+    setOrientation(orientation) {
+        this.orientation = orientation;
 
         this.updateSVGDimensions();
     }
@@ -165,8 +166,8 @@ class UniversalBoardDrawer {
     coordinateToFen(coordinates) {
         let [x, y] = coordinates;
 
-        x = this.playerColor == 'w' ? x : this.boardDimensions.width - x + 1;
-        y = this.playerColor == 'b' ? y : this.boardDimensions.height - y + 1;
+        x = this.orientation == 'w' ? x : this.boardDimensions.width - x + 1;
+        y = this.orientation == 'b' ? y : this.boardDimensions.height - y + 1;
 
         const getCharacter = num => String.fromCharCode(96 + num);
 
