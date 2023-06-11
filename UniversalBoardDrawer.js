@@ -1,5 +1,5 @@
 /* UniversalBoardDrawer.js
- - Version: 1.2.2
+ - Version: 1.3.0
  - Author: Haka
  - Description: A userscript library for seamlessly adding chess move arrows to game boards on popular platforms like Chess.com and Lichess.org
  - GitHub: https://github.com/Hakorr/UniversalBoardDrawer
@@ -25,16 +25,20 @@ class UniversalBoardDrawer {
 
         this.boardContainerElem = null;
         this.singleSquareSize = null;
+        this.lastInputPositionStr = null;
+        this.lastInputPosition = null;
 
         this.addedShapes = [];
         this.squareSvgCoordinates = [];
         this.observers = [];
+        this.customActivityListeners = [];
 
         this.defaultFillColor = 'mediumseagreen';
         this.defaultOpacity = 0.8;
 
         this.updateInterval = 100;
-        
+
+        this.isInputDown = false;
         this.terminated = false;
 
         if(!this.document) {
@@ -56,6 +60,44 @@ class UniversalBoardDrawer {
         }
 
         this.createOverlaySVG();
+
+        const handleMouseMove = e => {
+            if (this.terminated) {
+                this.document.removeEventListener('mousemove', handleMouseMove);
+                return;
+            }
+            this.handleMouseEvent.bind(this)(e);
+        };
+
+        const handleTouchStart = e => {
+            if (this.terminated) {
+                this.document.removeEventListener('touchstart', handleTouchStart);
+                return;
+            }
+            this.handleMouseEvent.bind(this)(e);
+        };
+
+        const handleMouseDown = () => {
+            if (this.terminated) {
+                this.document.removeEventListener('mousedown', handleMouseDown);
+                return;
+            }
+            this.isInputDown = true;
+        };
+
+        const handleMouseUp = () => {
+            if (this.terminated) {
+                this.document.removeEventListener('mouseup', handleMouseUp);
+                return;
+            }
+
+            this.isInputDown = false;
+        };
+          
+        this.document.addEventListener('mousemove', handleMouseMove);
+        this.document.addEventListener('touchstart', handleTouchStart);
+        this.document.addEventListener('mousedown', handleMouseDown);
+        this.document.addEventListener('mouseup', handleMouseUp);
     }
 
     setOrientation(orientation) {
@@ -177,7 +219,7 @@ class UniversalBoardDrawer {
         return file + rank;
     }
 
-    updateCoords(squareWidth, squareHeight) {
+    updateCoords() {
         this.squareSvgCoordinates = []; // reset coordinate array
 
         // calculate every square center point coordinates relative to the svg
@@ -185,8 +227,8 @@ class UniversalBoardDrawer {
             for(let x = 0; this.boardDimensions.width > x; x++) {
                 this.squareSvgCoordinates.push({
                     coordinates: [x + 1, y + 1],
-                    positions: [squareWidth / 2 + (squareWidth * x),
-                                  squareHeight / 2 + (squareHeight * y)]
+                    positions: [this.squareWidth / 2 + (this.squareWidth * x),
+                                this.squareHeight / 2 + (this.squareHeight * y)]
                 });
             }
         }
@@ -245,8 +287,10 @@ class UniversalBoardDrawer {
         const squareHeight = boardRect.height / this.boardDimensions.height;
 
         this.singleSquareSize = squareWidth;
+        this.squareWidth = squareWidth;
+        this.squareHeight = squareHeight;
 
-        this.updateCoords(squareWidth, squareHeight);
+        this.updateCoords();
         this.updateShapes();
     }
 
@@ -285,6 +329,50 @@ class UniversalBoardDrawer {
                 this.updateSVGDimensions();
             }
         }, this.updateInterval);
+    }
+
+    getCoordinatesFromInputPosition(e) {
+		const boardRect = this.boardElem.getBoundingClientRect();
+		
+		const { clientX, clientY } = e.touches ? e.touches[0] : e;
+		const isOutOfBounds = clientX < boardRect.left || clientX > boardRect.right || clientY < boardRect.top || clientY > boardRect.bottom;
+
+		const relativeX = clientX - boardRect.left;
+		const relativeY = clientY - boardRect.top;
+		
+		return isOutOfBounds
+			? [null, null]
+			: [Math.floor(relativeX / this.squareWidth) + 1, Math.floor(relativeY / this.squareHeight) + 1];
+	}
+
+    handleMouseEvent(e) {
+		if(this.isInputDown) return;
+		
+		const position = this.getCoordinatesFromInputPosition(e),
+              positionStr = position?.toString();
+		
+		if(positionStr != this.lastInputPositionStr) {
+            const enteredSquareListeners = this.customActivityListeners.filter(obj => obj.square == this.coordinateToFen(position));
+
+            enteredSquareListeners.forEach(obj => obj.cb('enter'));
+
+            if(this.lastInputPosition && this.lastInputPosition[0] != null) {
+                const leftSquareListeners = this.customActivityListeners.filter(obj => obj.square == this.coordinateToFen(this.lastInputPosition));
+
+                leftSquareListeners.forEach(obj => obj.cb('leave'));
+            }
+
+            this.lastInputPositionStr = positionStr;
+            this.lastInputPosition = position;
+		}
+	}
+
+    addSquareListener(square, cb) {
+        this.customActivityListeners.push({ square, cb });
+
+        return { remove: () => {
+            this.customActivityListeners = this.customActivityListeners.filter(obj => obj.square != square && obj.cb != cb);
+        }};
     }
 
     terminate() {
