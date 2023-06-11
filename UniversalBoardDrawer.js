@@ -93,7 +93,7 @@ class UniversalBoardDrawer {
 
             this.isInputDown = false;
         };
-          
+            
         this.document.addEventListener('mousemove', handleMouseMove);
         this.document.addEventListener('touchstart', handleTouchStart);
         this.document.addEventListener('mousedown', handleMouseDown);
@@ -332,26 +332,26 @@ class UniversalBoardDrawer {
     }
 
     getCoordinatesFromInputPosition(e) {
-		const boardRect = this.boardElem.getBoundingClientRect();
-		
-		const { clientX, clientY } = e.touches ? e.touches[0] : e;
-		const isOutOfBounds = clientX < boardRect.left || clientX > boardRect.right || clientY < boardRect.top || clientY > boardRect.bottom;
+        const boardRect = this.boardElem.getBoundingClientRect();
+        
+        const { clientX, clientY } = e.touches ? e.touches[0] : e;
+        const isOutOfBounds = clientX < boardRect.left || clientX > boardRect.right || clientY < boardRect.top || clientY > boardRect.bottom;
 
-		const relativeX = clientX - boardRect.left;
-		const relativeY = clientY - boardRect.top;
-		
-		return isOutOfBounds
-			? [null, null]
-			: [Math.floor(relativeX / this.squareWidth) + 1, Math.floor(relativeY / this.squareHeight) + 1];
-	}
+        const relativeX = clientX - boardRect.left;
+        const relativeY = clientY - boardRect.top;
+        
+        return isOutOfBounds
+            ? [null, null]
+            : [Math.floor(relativeX / this.squareWidth) + 1, Math.floor(relativeY / this.squareHeight) + 1];
+    }
 
     handleMouseEvent(e) {
-		if(this.isInputDown) return;
-		
-		const position = this.getCoordinatesFromInputPosition(e),
-              positionStr = position?.toString();
-		
-		if(positionStr != this.lastInputPositionStr) {
+        if(this.isInputDown) return;
+        
+        const position = this.getCoordinatesFromInputPosition(e),
+                positionStr = position?.toString();
+        
+        if(positionStr != this.lastInputPositionStr) {
             const enteredSquareListeners = this.customActivityListeners.filter(obj => obj.square == this.coordinateToFen(position));
 
             enteredSquareListeners.forEach(obj => obj.cb('enter'));
@@ -364,8 +364,8 @@ class UniversalBoardDrawer {
 
             this.lastInputPositionStr = positionStr;
             this.lastInputPosition = position;
-		}
-	}
+        }
+    }
 
     addSquareListener(square, cb) {
         this.customActivityListeners.push({ square, cb });
