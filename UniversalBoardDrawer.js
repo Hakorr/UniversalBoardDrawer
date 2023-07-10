@@ -243,8 +243,10 @@ class UniversalBoardDrawer {
     }
 
     transferAttributes(fromElem, toElem) {
-        [...fromElem.attributes].forEach(attr =>
-            toElem.setAttribute(attr.name, attr.value));
+        if(fromElem && fromElem?.attributes && toElem) {
+            [...fromElem.attributes].forEach(attr =>
+                toElem.setAttribute(attr.name, attr.value));
+        }
     }
 
     createShape(type, positions, config) {
