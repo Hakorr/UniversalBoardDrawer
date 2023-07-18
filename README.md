@@ -84,7 +84,7 @@ This method terminates the `UniversalBoardDrawer` instance by removing all eleme
 // @version     1.0
 // @author      HKR
 // @description Example userscript
-// @require     https://raw.githubusercontent.com/Hakorr/UniversalBoardDrawer/main/UniversalBoardDrawer.js
+// @require     https://greasyfork.org/scripts/470417-universalboarddrawer-js/code/UniversalBoardDrawerjs.js
 // @run-at      document-start
 // ==/UserScript==
 
@@ -97,7 +97,7 @@ function load(boardElem) {
         'debugMode': true
     });
 
-    const defaultArrowElem = BoardDrawer.createShape('arrow', ['f6', 'g7']); // create arrow from h1 to h6, with default config
+    const defaultArrowElem = BoardDrawer.createShape('arrow', ['f6', 'g7']); // create arrow from f6 to g7, with default config
 
     // create arrow from d2 to f6 with custom config
     const bigArrowElem = BoardDrawer.createShape('arrow', ['g5', 'e4'], {
@@ -118,7 +118,7 @@ function load(boardElem) {
 }
 
 const observer = new MutationObserver((mutationsList, observer) => {
-    const boardElem = document.querySelector('#board-vs-personalities');
+    const boardElem = document.querySelector('chess-board');
 
     if(boardElem) {
         observer.disconnect();
