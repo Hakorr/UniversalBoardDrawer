@@ -99,7 +99,7 @@ function load(boardElem) {
 
     const defaultArrowElem = BoardDrawer.createShape('arrow', ['f6', 'g7']); // create arrow from f6 to g7, with default config
 
-    // create arrow from d2 to f6 with custom config
+    // create arrow from g5 to e4 with custom config
     const bigArrowElem = BoardDrawer.createShape('arrow', ['g5', 'e4'], {
         lineWidth: 25,
         arrowheadWidth: 75,
