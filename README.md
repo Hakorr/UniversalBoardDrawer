@@ -46,7 +46,7 @@ The config (Object) can consists of the following properties:
 #### `createShape(shapeType, coordinates, config)`
 This method creates a shape on the board with the specified configuration.
 
-- `shapeType` (String): The type of shape to create. Currently, only `'arrow'` is supported.
+- `shapeType` (String): The type of shape to create. `'arrow'`, `'text'` &  `rectangle'` is supported.
 - `coordinates` (Array): An array with two fen position strings representing the start and end positions.
 - `config` (Object, optional): An object containing additional configuration options for the shape.
 
@@ -56,6 +56,15 @@ This method creates a shape on the board with the specified configuration.
 - `arrowheadHeight` (Number): The height of the arrowhead.
 - `startOffset` (Number): The offset of the arrow start position.
 - `style` (String): Additional CSS style for the shape element.
+
+##### Text Configuration Options
+- `size`: (Number) This is a multiplier, default size is 1. Double the size is 2.
+- `text`: (String): Text to be displayed,
+- `position` (Array): Position relative to the square. [0,0] center, [1,1] top right, [-1,-1] bottom left.
+- `style` (String): Additional CSS style for the SVG text.
+
+##### Rectangle Configuration Options
+- `style` (String): Additional CSS style for the SVG rectangle
 
 ##### Returns:
 An HTMLElement representing the created shape.
@@ -111,6 +120,15 @@ function load(boardElem) {
     BoardDrawer.createShape('arrow', ['e7', 'b4'], {
         style: `fill: limegreen;`
     });
+
+    BoardDrawer.createShape('text', 'a1', {
+        size: 1.5,
+        text: `Hello World!`,
+        style: `opacity: 0.5;`,
+        position: [0, 0.8]
+    });
+
+    BoardDrawer.createShape('rectangle', 'a2');
 
     setTimeout(() => bigArrowElem.remove(), 5000);
 
