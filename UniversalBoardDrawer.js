@@ -444,8 +444,8 @@ class UniversalBoardDrawer {
         let boardWidth = boardRect.width,
             boardHeight = boardRect.height;
 
-        let boardPositionTop = boardRect.top - bodyRect.top,
-            boardPositionLeft = boardRect.left - (this.ignoreBodyRectLeft ? 0 : bodyRect.left);
+        let boardPositionTop = boardRect.top + (window?.scrollY || 0),
+              boardPositionLeft = boardRect.left - (this.ignoreBodyRectLeft ? 0 : bodyRect.left);
 
         if(this.adjustSizeByDimensions) {
 
